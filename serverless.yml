@@ -27,39 +27,6 @@ provider:
     AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
 
 functions:
-  post-tweet:
-    handler: handle-post-tweet.postTweet
-    events:
-      - schedule:
-          rate: cron(0 15 ? * TUE *)
-          enabled: true
-          input:
-            title: Dev
-            feed: iamdevloper
-      - schedule:
-          rate: cron(0 15 ? * FRI *)
-          enabled: true
-          input:
-            title: Consulting
-            feed: CrazyMgmtCons
-    environment:
-      TWITTER_KEY: ${self:custom.env.TWITTER_KEY}
-      DISCORD_KEY: ${self:custom.env.DISCORD_KEY}
-      DISCORD_CHANNELID: ${self:custom.env.DISCORD_CHANNELID}
-  post-reddit:
-    handler: handle-post-reddit.postReddit
-    events:
-      - schedule:
-          rate: cron(0 21 ? * * *)
-          enabled: true
-    environment:
-      DISCORD_KEY: ${self:custom.env.DISCORD_KEY}
-      DISCORD_CHANNELID: ${self:custom.env.DISCORD_CHANNELID}
-  post-custom:
-    handler: handle-post-custom.postCustom
-    environment:
-      DISCORD_KEY: ${self:custom.env.DISCORD_KEY}
-      DISCORD_CHANNELID: ${self:custom.env.DISCORD_CHANNELID}
   check-standup:
     handler: handle-standupbot.checkStandup
     events:
