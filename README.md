@@ -57,6 +57,12 @@ Test locally by using e.g. `sls invoke local -f prompt-standup`, where the last 
 
 Deploy to AWS by using e.g. `sls deploy --aws-profile personal --stage prod` (profile is optional, if you've set that up).
 
+## Configure Timing
+
+You'll find the timing for each trigger in the serverless.yml file. You can have the check+poke run as many times as you like, but note that the `getPosters()` method in `helpers/slack.ts` checks for people who have said something in the channel since 6am GMT (roughly midnight, Eastern). There's a small chance that this leads to weird results if you have a project in time zones on the other side of the planet.
+
+Note also that the AWS cron syntax is annoyingly different from the real cron syntax that's been around for 45 years... plus, it appears to always work in GMT so you may have to update the timing for daylight savings twice a year.
+
 ## Users to ignore
 
 By default, the standup check will look to poke all members of the channel. One last "configurable" thing is the ability to ignore certain channel members - it's actually hardcoded for now because it was a late addition I didn't get to cleaning up. You'll see this in the `doStandupCheck` function in `handle-standupbot.ts`, specifically removing UIDs from an array. To find those IDs in your channel, use `sls invoke local -f list-standup-users` locally, which references the `SLACK_STANDUP_CHANNEL_PROD`. It's a bit hacky, but I wanted to avoid forcing `--stage prod` to scan the right channel. Then you can look for the IDs you want to exclude and update the script, then redeploy.
