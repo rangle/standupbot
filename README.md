@@ -15,7 +15,7 @@ You'll have to first create a Slack App. I don't remember if this is stricly req
 
 1. Go to https://api.slack.com/apps/
 2. Create a new app, select 'Rangle' (or something else) as your dev workspace. This will effectively be your 'forever' workspace because we're not distributing this as a public app.
-3. You can set some basic details, whatever's minimally required.
+3. You adjust the icon, name of the bot and nothing else is required.
 4. You'll need to get an OAuth Token from the "OAuth & Permissions" tab. Copy the bot token, you'll need it in your env file.
 5. In OAuth, under "Scopes" you'll need 
   * channels:history (this is needed to find channels by name instead of ID)

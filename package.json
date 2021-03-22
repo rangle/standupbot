@@ -1,5 +1,5 @@
 {
-  "name": "meowbot",
+  "name": "standup-bot",
   "version": "1.0.0",
   "description": "Serverless webpack example using Typescript",
   "main": "handler.js",
