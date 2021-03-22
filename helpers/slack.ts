@@ -2,26 +2,28 @@ import fetch from 'node-fetch';
 import Response from 'node-fetch';
 
 const apiBase = 'https://slack.com/api/';
-const apiToken = process.env.SLACK_KEY;
 
-const postHeaders = {
+
+const getHeaders = () => ({
     'Content-type': 'application/json; charset=utf-8',
-    'User-Agent': 'Mozilla/5.0 (meowbot)',
-    'Authorization': `Bearer ${apiToken}`
-};
+    'User-Agent': 'Mozilla/5.0 (standup-bot)',
+    'Authorization': `Bearer ${process.env.SLACK_KEY}` // need to be executed at runtime to resolve variable
+});
+
+const getFetchOptions = () => ({ headers: getHeaders()})
 
 export const getChannel = (channelName: string): Promise<Slack.Channel> => new Promise((resolve: Function, reject: Function) => {
-    fetch(`${apiBase}conversations.list?token=${apiToken}&exclude_archived=1&types=private_channel`)
-    .then((response: Response) => response.json())
-    .then((json: Slack.ChannelListResponse) => {
-        if (!json.ok) { reject(json); return; }
-        resolve(json.channels.find(channel => channel.name === channelName))
-    })
-    .catch(error => reject(error));
+    fetch(`${apiBase}conversations.list?exclude_archived=1&types=private_channel`, getFetchOptions())
+        .then((response: Response) => response.json())
+        .then((json: Slack.ChannelListResponse) => {
+            if (!json.ok) { reject(json); return; }
+            resolve(json.channels.find(channel => channel.name === channelName))
+        })
+        .catch(error => reject(error));
 });
 
 export const getMembers = (channel: Slack.Channel): Promise<string[]> => new Promise((resolve: Function, reject: Function) => {
-    fetch(`${apiBase}conversations.members?token=${apiToken}&channel=${channel.id}`)
+    fetch(`${apiBase}conversations.members?channel=${channel.id}`, getFetchOptions())
     .then((response: Response) => response.json())
     .then((json: Slack.MemberListResponse) => {
         if (!json.ok) { reject(json); return; }
@@ -31,7 +33,7 @@ export const getMembers = (channel: Slack.Channel): Promise<string[]> => new Pro
 });
 
 export const getAllUsers = (): Promise<Map<string,Slack.Member>> => new Promise((resolve: Function, reject: Function) => {
-    fetch(`${apiBase}users.list?token=${apiToken}`)
+    fetch(`${apiBase}users.list` , getFetchOptions())
     .then((response: Response) => response.json())
     .then((json: Slack.UserListResponse) => {
         if (!json.ok) { reject(json); return; }
@@ -49,7 +51,7 @@ export const getPosters = (channel: Slack.Channel): Promise<Object> => new Promi
     today.setHours(6);
     today.setMinutes(0);
     let tstamp = today.getTime() / 1000;
-    fetch(`${apiBase}conversations.history?token=${apiToken}&channel=${channel.id}&oldest=${tstamp}`)
+    fetch(`${apiBase}conversations.history?channel=${channel.id}&oldest=${tstamp}`, getFetchOptions())
     .then((response: Response) => response.json())
     .then((json: Slack.MessageListResponse) => {
         if (!json.ok) { reject(json); return; }
@@ -61,7 +63,7 @@ export const getPosters = (channel: Slack.Channel): Promise<Object> => new Promi
 });
 
 export const getUserStatus = (uid : string): Promise<string> => new Promise((resolve: Function, reject: Function) => {
-    fetch(`${apiBase}users.getPresence?token=${apiToken}&user=${uid}`)
+    fetch(`${apiBase}users.getPresence?user=${uid}`, getFetchOptions())
     .then((response: Response) => response.json())
     .then((json: Slack.UserPresenceResponse) => {
         if (!json.ok) { reject(json); return; }
@@ -71,8 +73,8 @@ export const getUserStatus = (uid : string): Promise<string> => new Promise((res
 });
 
 const slackPost = (channel: Slack.Channel, content: any): Promise<void> => new Promise((resolve: Function, reject: Function) => {
-    content.channel = channel.id;
-    fetch(`${apiBase}chat.postMessage`, { method: 'POST', body: JSON.stringify(content), headers: postHeaders })
+        content.channel = channel.id;
+        fetch(`${apiBase}chat.postMessage`, { method: 'POST', body: JSON.stringify(content), headers: getHeaders()})
         .then((response: Response) => response.json())
         //.then(async (response: Response) => { response.ok ? response.json() : console.log(await response.text()) })
         .then((json: any) => { console.log(json); resolve(json) })
@@ -96,8 +98,8 @@ export const postMessage = (channel: Slack.Channel, msg: string, attachTitle?: s
         : {
             "text": msg
         };
-    message.username = "Monkeybot";
-    message.icon_url = "https://i.imgur.com/0rRmtDG.png";
+    // message.username = "Monkeybot II";
+    // message.icon_url = "https://i.imgur.com/0rRmtDG.png";
 
     resolve(slackPost(channel, message));
 });

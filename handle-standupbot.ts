@@ -73,6 +73,7 @@ const doStandupCheck = async (channelName: string): Promise<void> => {
   usersToPoke.delete('UPFFSMC3S'); // always remove Rick
   usersToPoke.delete('UMVBDKAK1'); // always remove Sanya
   usersToPoke.delete('U7WKT9ZFZ'); // always remove Jason
+  usersToPoke.delete('U4MGK7V3R'); // always remove Alina
   
   // remove inactive users
   let it = usersToPoke.keys();
