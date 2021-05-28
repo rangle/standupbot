@@ -61,7 +61,7 @@ Deploy to AWS by using e.g. `sls deploy --aws-profile personal --stage prod` (pr
 
 You'll find the timing for each trigger in the serverless.yml file. You can have the check+poke run as many times as you like, but note that the `getPosters()` method in `helpers/slack.ts` checks for people who have said something in the channel since 6am GMT (roughly midnight, Eastern). There's a small chance that this leads to weird results if you have a project in time zones on the other side of the planet.
 
-Note also that the AWS cron syntax is annoyingly different from the real cron syntax that's been around for 45 years... plus, it appears to always work in GMT so you may have to update the timing for daylight savings twice a year.
+Note also that the [AWS cron syntax](https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html#CronExpressions) is annoyingly different from the real cron syntax that's been around for 45 years... plus, it appears to always work in GMT so you may have to update the timing for daylight savings twice a year.
 
 ## Users to ignore
 
