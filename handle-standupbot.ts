@@ -9,7 +9,7 @@ const standupPrompt = "- What do you plan to do today?\n"
 + "- Any new discoveries to share?\n"
 + "If you prefer, feel free to contact Jason, Michael or each other if you think your conundrum runs deeper than a slack message can solve.";
 
-export const promptStandup: APIGatewayProxyHandler = async (event: CustomEvent, _context) => {
+export const promptStandup: APIGatewayProxyHandler = async (event, _context) => {
   try {
     let channelName = process.env.SLACK_STANDUP_CHANNEL;
     console.log("standup check in: ", channelName);
@@ -17,22 +17,22 @@ export const promptStandup: APIGatewayProxyHandler = async (event: CustomEvent, 
     await postMessage(channel, standupPrompt, standupTitle);
     return { statusCode: 200, body: '' };
   } catch (error) {
-    console.error("Oh noes!!");
+    console.error("Oh noes!!, promptStandup failed");
     console.log(error);
   }
 }
 
-export const checkStandup: APIGatewayProxyHandler = async (event: CustomEvent, _context) => {
+export const checkStandup: APIGatewayProxyHandler = async (event, _context) => {
   try {
     await doStandupCheck(process.env.SLACK_STANDUP_CHANNEL);
     return { statusCode: 200, body: '' };
   } catch (error) {
-    console.error("Oh noes!!");
+    console.error("Oh noes!!, checkStandup failed");
     console.log(error);
   }
 }
 
-export const listStandupUsers: APIGatewayProxyHandler = async (event: CustomEvent, _context) => {
+export const listStandupUsers: APIGatewayProxyHandler = async (event, _context) => {
   try {
     let channelName = process.env.SLACK_STANDUP_CHANNEL;
     console.log("list users in: ", channelName);
@@ -53,7 +53,7 @@ export const listStandupUsers: APIGatewayProxyHandler = async (event: CustomEven
 
     return { statusCode: 200, body: JSON.stringify(outMap) };
   } catch (error) {
-    console.error("Oh noes!!");
+    console.error("Oh noes!!, listStandupUsers failed");
     console.log(error);
   }
 }
@@ -70,10 +70,9 @@ const doStandupCheck = async (channelName: string): Promise<void> => {
   for (let p in posters) {
     usersToPoke.delete(p);
   }
-  usersToPoke.delete('UPFFSMC3S'); // always remove Rick
+
   usersToPoke.delete('UMVBDKAK1'); // always remove Sanya
   usersToPoke.delete('U7WKT9ZFZ'); // always remove Jason
-  usersToPoke.delete('U4MGK7V3R'); // always remove Alina
   
   // remove inactive users
   let it = usersToPoke.keys();
