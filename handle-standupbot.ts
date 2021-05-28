@@ -3,11 +3,9 @@ import 'source-map-support/register';
 import { getChannel, getMembers, getAllUsers, getPosters, getUserStatus, postMessage, Slack } from "./helpers/slack";
 
 const standupTitle = "<!here> It's virtual standup time!!";
-const standupPrompt = "- What do you plan to do today?\n"
-+ "- Are you blocked or needing clarification on anything?\n"
-+ "- Need a second pair of eyes?\n"
-+ "- Any new discoveries to share?\n"
-+ "If you prefer, feel free to contact Jason, Michael or each other if you think your conundrum runs deeper than a slack message can solve.";
+const standupPrompt = "1. What did you accomplish since the last check-in?\n"
++ "2. What are you working on next?\n"
++ "3. Current Status: Blocked :no_entry_sign:, Need Assistance :hand:, On Track :white_check_mark:\n"
 
 export const promptStandup: APIGatewayProxyHandler = async (event, _context) => {
   try {
