@@ -4,7 +4,7 @@ Standupbot is a tool to facilitate virtual standup in a Slack channel. It works 
 
 ![sample functionality in Slack](docs/screenshot.png)
 
-1. The first trigger is to prompt channel members (@here) with a message prompting for status updates.
+1. The first trigger is to prompt channel members (`@here`) with a message prompting for status updates.
 2. Additional triggers can be set up (e.g. 30 and 50 minutes after the prompt) to ping online channel members who have not recently responded.
 
 The script is currently somewhat hardcoded, in that it can only handle one channel per deployment.
@@ -18,13 +18,13 @@ You'll have to first create a Slack App. I don't remember if this is stricly req
 3. You adjust the icon, name of the bot and nothing else is required.
 4. You'll need to get an OAuth Token from the "OAuth & Permissions" tab. Copy the bot token, you'll need it in your env file.
 5. In OAuth, under "Scopes" you'll need 
-  * channels:history (this is needed to find channels by name instead of ID)
-  * channels:read
-  * chat:write
-  * chat:write.customize (this is to alter the name and display picture from the app default, if you care)
-  * groups:history (this and the next one is required if your standup channel is private)
-  * groups:read
-  * users:read (this is needed to see whether a user is online)
+  * `channels:history` (this is needed to find channels by name instead of ID)
+  * `channels:read`
+  * `chat:write`
+  * `chat:write.customize` (this is to alter the name and display picture from the app default, if you care)
+  * `groups:history` (this and the next one is required if your standup channel is private)
+  * `groups:read`
+  * `users:read` (this is needed to see whether a user is online)
 5. Create a new channel in Slack for your standups. You'll typically want to use this channel only for standup.
 6. You'll need to make sure the app is installed to the workspace after adding those perms - there should be a green button for this next to the Bot OAuth Token.
 
