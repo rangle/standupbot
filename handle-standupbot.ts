@@ -69,17 +69,20 @@ const doStandupCheck = async (channelName: string): Promise<void> => {
     usersToPoke.delete(p);
   }
 
-  usersToPoke.delete('UMVBDKAK1'); // always remove Sanya
-  usersToPoke.delete('U7WKT9ZFZ'); // always remove Jason
   
   // remove inactive users
   let it = usersToPoke.keys();
   let next = it.next();
   while (!next.done) {
     let uid = next.value;
-    let stat = await getUserStatus(uid);
-    console.debug("status check", uid, stat);
-    if (stat !== "active") { usersToPoke.delete(uid); }
+    try {
+      let stat = await getUserStatus(uid);
+      console.debug("status check", uid, stat);
+      if (stat !== "active") { usersToPoke.delete(uid); }
+    } catch (err) {
+      // For e.g. other workspaces
+      console.debug('could not get info for user', uid, err)
+    }
     next = it.next();
   }
 
