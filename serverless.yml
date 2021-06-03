@@ -31,10 +31,10 @@ functions:
     handler: handle-standupbot.checkStandup
     events:
       - schedule:
-          rate: cron(50 17 ? * MON,WED,FRI *) # ref: https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html#CronExpressions
+          rate: cron(00 19 ? * MON,WED,FRI *) # ref: https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html#CronExpressions
           enabled: true
       - schedule:
-          rate: cron(20 17 ? * MON,WED,FRI *) # ref: https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html#CronExpressions
+          rate: cron(30 17 ? * MON,WED,FRI *) # ref: https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html#CronExpressions
           enabled: true
     environment:
       SLACK_KEY: ${self:custom.env.SLACK_KEY}
