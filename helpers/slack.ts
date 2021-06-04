@@ -53,10 +53,15 @@ export const getPosters = (channel: Slack.Channel): Promise<Object> => new Promi
     let tstamp = today.getTime() / 1000;
     fetch(`${apiBase}conversations.history?channel=${channel.id}&oldest=${tstamp}`, getFetchOptions())
     .then((response: Response) => response.json())
-    .then((json: Slack.MessageListResponse) => {
+        .then((json: Slack.MessageListResponse) => {
         if (!json.ok) { reject(json); return; }
         var postUsers = {};
-        json.messages.forEach(item => postUsers[item.user] = 1);
+        json.messages.forEach(message => {
+            postUsers[message.user] = 1; // users that posted in channel
+            (message['reply_users'] || []).forEach(replyUser => {
+                postUsers[replyUser] = 1; // users that posted as Reply
+            })
+        });
         resolve(postUsers);
     })
     .catch(error => reject(error));
