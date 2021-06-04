@@ -1,8 +1,5 @@
 service:
   name: standup-bot
-# app and org for use with dashboard.serverless.com
-#app: your-app-name
-#org: your-org-name
 
 custom:
   env: ${file(./${opt:stage, self:provider.stage}.env.json)}
@@ -56,8 +53,3 @@ functions:
       SLACK_KEY: ${self:custom.env.SLACK_KEY}
       SLACK_STANDUP_CHANNEL: ${self:custom.env.SLACK_STANDUP_CHANNEL_PROD}
       REMOVE_FROM_STANDUP: ${self:custom.env.REMOVE_FROM_STANDUP}
-  
-
-#0 20 * * * /usr/share/meowbot/dadjokes.pl
-#0 14 * * 2 /usr/share/meowbot/crazytweet.pl iamdevloper Dev
-#0 14 * * 5 /usr/share/meowbot/crazytweet.pl CrazyMgmtCons Consulting

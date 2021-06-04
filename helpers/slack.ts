@@ -1,249 +1,288 @@
-import fetch from 'node-fetch';
-import Response from 'node-fetch';
+import fetch from "node-fetch";
+import Response from "node-fetch";
 
-const apiBase = 'https://slack.com/api/';
-
+const apiBase = "https://slack.com/api/";
 
 const getHeaders = () => ({
-    'Content-type': 'application/json; charset=utf-8',
-    'User-Agent': 'Mozilla/5.0 (standup-bot)',
-    'Authorization': `Bearer ${process.env.SLACK_KEY}` // need to be executed at runtime to resolve variable
+  "Content-type": "application/json; charset=utf-8",
+  "User-Agent": "Mozilla/5.0 (standup-bot)",
+  Authorization: `Bearer ${process.env.SLACK_KEY}`, // need to be executed at runtime to resolve variable
 });
 
-const getFetchOptions = () => ({ headers: getHeaders()})
+const getFetchOptions = () => ({ headers: getHeaders() });
 
-export const getChannel = (channelName: string): Promise<Slack.Channel> => new Promise((resolve: Function, reject: Function) => {
-    fetch(`${apiBase}conversations.list?exclude_archived=1&types=private_channel`, getFetchOptions())
-        .then((response: Response) => response.json())
-        .then((json: Slack.ChannelListResponse) => {
-            if (!json.ok) { reject(json); return; }
-            resolve(json.channels.find(channel => channel.name === channelName))
-        })
-        .catch(error => reject(error));
-});
+export const getChannel = (channelName: string): Promise<Slack.Channel> =>
+  new Promise((resolve: Function, reject: Function) => {
+    fetch(
+      `${apiBase}conversations.list?exclude_archived=1&types=private_channel`,
+      getFetchOptions()
+    )
+      .then((response: Response) => response.json())
+      .then((json: Slack.ChannelListResponse) => {
+        if (!json.ok) {
+          reject(json);
+          return;
+        }
+        resolve(json.channels.find((channel) => channel.name === channelName));
+      })
+      .catch((error) => reject(error));
+  });
 
-export const getMembers = (channel: Slack.Channel): Promise<string[]> => new Promise((resolve: Function, reject: Function) => {
-    fetch(`${apiBase}conversations.members?channel=${channel.id}`, getFetchOptions())
-    .then((response: Response) => response.json())
-    .then((json: Slack.MemberListResponse) => {
-        if (!json.ok) { reject(json); return; }
-        resolve(json.members)
-    })
-    .catch(error => reject(error));
-});
+export const getMembers = (channel: Slack.Channel): Promise<string[]> =>
+  new Promise((resolve: Function, reject: Function) => {
+    fetch(
+      `${apiBase}conversations.members?channel=${channel.id}`,
+      getFetchOptions()
+    )
+      .then((response: Response) => response.json())
+      .then((json: Slack.MemberListResponse) => {
+        if (!json.ok) {
+          reject(json);
+          return;
+        }
+        resolve(json.members);
+      })
+      .catch((error) => reject(error));
+  });
 
-export const getAllUsers = (): Promise<Map<string,Slack.Member>> => new Promise((resolve: Function, reject: Function) => {
-    fetch(`${apiBase}users.list` , getFetchOptions())
-    .then((response: Response) => response.json())
-    .then((json: Slack.UserListResponse) => {
-        if (!json.ok) { reject(json); return; }
+export const getAllUsers = (): Promise<Map<string, Slack.Member>> =>
+  new Promise((resolve: Function, reject: Function) => {
+    fetch(`${apiBase}users.list`, getFetchOptions())
+      .then((response: Response) => response.json())
+      .then((json: Slack.UserListResponse) => {
+        if (!json.ok) {
+          reject(json);
+          return;
+        }
         let outMap = new Map<string, Slack.Member>();
         if (json.members) {
-            json.members.forEach(u => outMap.set(u.id, u));
+          json.members.forEach((u) => outMap.set(u.id, u));
         }
-        resolve(outMap)
-    })
-    .catch(error => reject(error));
-});
+        resolve(outMap);
+      })
+      .catch((error) => reject(error));
+  });
 
-export const getPosters = (channel: Slack.Channel): Promise<Object> => new Promise((resolve: Function, reject: Function) => {
+export const getPosters = (channel: Slack.Channel): Promise<Object> =>
+  new Promise((resolve: Function, reject: Function) => {
     let today = new Date();
     today.setHours(6);
     today.setMinutes(0);
     let tstamp = today.getTime() / 1000;
-    fetch(`${apiBase}conversations.history?channel=${channel.id}&oldest=${tstamp}`, getFetchOptions())
-    .then((response: Response) => response.json())
-        .then((json: Slack.MessageListResponse) => {
-        if (!json.ok) { reject(json); return; }
+    fetch(
+      `${apiBase}conversations.history?channel=${channel.id}&oldest=${tstamp}`,
+      getFetchOptions()
+    )
+      .then((response: Response) => response.json())
+      .then((json: Slack.MessageListResponse) => {
+        if (!json.ok) {
+          reject(json);
+          return;
+        }
         var postUsers = {};
-        json.messages.forEach(message => {
-            postUsers[message.user] = 1; // users that posted in channel
-            (message['reply_users'] || []).forEach(replyUser => {
-                postUsers[replyUser] = 1; // users that posted as Reply
-            })
+        json.messages.forEach((message) => {
+          postUsers[message.user] = 1; // users that posted in channel
+          (message["reply_users"] || []).forEach((replyUser) => {
+            postUsers[replyUser] = 1; // users that posted as Reply
+          });
         });
         resolve(postUsers);
-    })
-    .catch(error => reject(error));
-});
+      })
+      .catch((error) => reject(error));
+  });
 
-export const getUserStatus = (uid : string): Promise<string> => new Promise((resolve: Function, reject: Function) => {
+export const getUserStatus = (uid: string): Promise<string> =>
+  new Promise((resolve: Function, reject: Function) => {
     fetch(`${apiBase}users.getPresence?user=${uid}`, getFetchOptions())
-    .then((response: Response) => response.json())
-    .then((json: Slack.UserPresenceResponse) => {
-        if (!json.ok) { reject(json); return; }
-        resolve(json.presence)
+      .then((response: Response) => response.json())
+      .then((json: Slack.UserPresenceResponse) => {
+        if (!json.ok) {
+          reject(json);
+          return;
+        }
+        resolve(json.presence);
+      })
+      .catch((error) => reject(error));
+  });
+
+const slackPost = (channel: Slack.Channel, content: any): Promise<void> =>
+  new Promise((resolve: Function, reject: Function) => {
+    content.channel = channel.id;
+    fetch(`${apiBase}chat.postMessage`, {
+      method: "POST",
+      body: JSON.stringify(content),
+      headers: getHeaders(),
     })
-    .catch(error => reject(error));
-});
+      .then((response: Response) => response.json())
+      //.then(async (response: Response) => { response.ok ? response.json() : console.log(await response.text()) })
+      .then((json: any) => {
+        console.log(json);
+        resolve(json);
+      })
+      .catch((error) => reject(error));
+  });
 
-const slackPost = (channel: Slack.Channel, content: any): Promise<void> => new Promise((resolve: Function, reject: Function) => {
-        content.channel = channel.id;
-        fetch(`${apiBase}chat.postMessage`, { method: 'POST', body: JSON.stringify(content), headers: getHeaders()})
-        .then((response: Response) => response.json())
-        //.then(async (response: Response) => { response.ok ? response.json() : console.log(await response.text()) })
-        .then((json: any) => { console.log(json); resolve(json) })
-        .catch(error => reject(error));
-});
-
-export const postMessage = (channel: Slack.Channel, msg: string, attachTitle?: string): Promise<void> => new Promise((resolve: Function, reject: Function) => {
+export const postMessage = (
+  channel: Slack.Channel,
+  msg: string,
+  attachTitle?: string
+): Promise<void> =>
+  new Promise((resolve: Function, reject: Function) => {
     if (msg === null) {
-        reject(new Error("No message to post!"));
-        return;
+      reject(new Error("No message to post!"));
+      return;
     }
-    const message: any = (attachTitle != null) ? {
-        "attachments": [
-            {
-                "color": "#00bf6f",
-                "title": attachTitle,
-                "text": msg
-            }
-        ]
-    }
+    const message: any =
+      attachTitle != null
+        ? {
+            attachments: [
+              {
+                color: "#00bf6f",
+                title: attachTitle,
+                text: msg,
+              },
+            ],
+          }
         : {
-            "text": msg
-        };
+            text: msg,
+          };
     // message.username = "Monkeybot II";
     // message.icon_url = "https://i.imgur.com/0rRmtDG.png";
 
     resolve(slackPost(channel, message));
-});
-
+  });
 
 // Slack response typedef below
 export declare module Slack {
+  export interface Topic {
+    value: string;
+    creator: string;
+    last_set: number;
+  }
 
-    export interface Topic {
-        value: string;
-        creator: string;
-        last_set: number;
-    }
+  export interface Purpose {
+    value: string;
+    creator: string;
+    last_set: number;
+  }
 
-    export interface Purpose {
-        value: string;
-        creator: string;
-        last_set: number;
-    }
+  export interface Channel {
+    id: string;
+    name: string;
+    is_channel: boolean;
+    is_group: boolean;
+    is_im: boolean;
+    created: number;
+    creator: string;
+    is_archived: boolean;
+    is_general: boolean;
+    unlinked: number;
+    name_normalized: string;
+    is_shared: boolean;
+    is_ext_shared: boolean;
+    is_org_shared: boolean;
+    pending_shared: any[];
+    is_pending_ext_shared: boolean;
+    is_member: boolean;
+    is_private: boolean;
+    is_mpim: boolean;
+    topic: Topic;
+    purpose: Purpose;
+    previous_names: any[];
+    num_members: number;
+  }
 
-    export interface Channel {
-        id: string;
-        name: string;
-        is_channel: boolean;
-        is_group: boolean;
-        is_im: boolean;
-        created: number;
-        creator: string;
-        is_archived: boolean;
-        is_general: boolean;
-        unlinked: number;
-        name_normalized: string;
-        is_shared: boolean;
-        is_ext_shared: boolean;
-        is_org_shared: boolean;
-        pending_shared: any[];
-        is_pending_ext_shared: boolean;
-        is_member: boolean;
-        is_private: boolean;
-        is_mpim: boolean;
-        topic: Topic;
-        purpose: Purpose;
-        previous_names: any[];
-        num_members: number;
-    }
+  export interface Profile {
+    avatar_hash: string;
+    status_text: string;
+    status_emoji: string;
+    real_name: string;
+    display_name: string;
+    real_name_normalized: string;
+    display_name_normalized: string;
+    email: string;
+    image_24: string;
+    image_32: string;
+    image_48: string;
+    image_72: string;
+    image_192: string;
+    image_512: string;
+    team: string;
+    image_1024: string;
+    image_original: string;
+    first_name: string;
+    last_name: string;
+    title: string;
+    phone: string;
+    skype: string;
+  }
 
-    export interface Profile {
-        avatar_hash: string;
-        status_text: string;
-        status_emoji: string;
-        real_name: string;
-        display_name: string;
-        real_name_normalized: string;
-        display_name_normalized: string;
-        email: string;
-        image_24: string;
-        image_32: string;
-        image_48: string;
-        image_72: string;
-        image_192: string;
-        image_512: string;
-        team: string;
-        image_1024: string;
-        image_original: string;
-        first_name: string;
-        last_name: string;
-        title: string;
-        phone: string;
-        skype: string;
-    }
+  export interface Member {
+    id: string;
+    team_id: string;
+    name: string;
+    deleted: boolean;
+    color: string;
+    real_name: string;
+    tz: string;
+    tz_label: string;
+    tz_offset: number;
+    profile: Profile;
+    is_admin: boolean;
+    is_owner: boolean;
+    is_primary_owner: boolean;
+    is_restricted: boolean;
+    is_ultra_restricted: boolean;
+    is_bot: boolean;
+    updated: number;
+    is_app_user: boolean;
+    has_2fa: boolean;
+  }
 
-    export interface Member {
-        id: string;
-        team_id: string;
-        name: string;
-        deleted: boolean;
-        color: string;
-        real_name: string;
-        tz: string;
-        tz_label: string;
-        tz_offset: number;
-        profile: Profile;
-        is_admin: boolean;
-        is_owner: boolean;
-        is_primary_owner: boolean;
-        is_restricted: boolean;
-        is_ultra_restricted: boolean;
-        is_bot: boolean;
-        updated: number;
-        is_app_user: boolean;
-        has_2fa: boolean;
-    }
+  export interface ResponseMetadata {
+    next_cursor: string;
+  }
 
+  export interface ChannelListResponse {
+    ok: boolean;
+    error?: string;
+    channels?: Channel[];
+    response_metadata: ResponseMetadata;
+  }
 
-    export interface ResponseMetadata {
-        next_cursor: string;
-    }
+  export interface MemberListResponse {
+    ok: boolean;
+    error?: string;
+    members?: string[];
+    response_metadata: ResponseMetadata;
+  }
 
-    export interface ChannelListResponse {
-        ok: boolean;
-        error?: string;
-        channels?: Channel[];
-        response_metadata: ResponseMetadata;
-    }
+  export interface UserListResponse {
+    ok: boolean;
+    error?: string;
+    members?: Member[];
+    response_metadata: ResponseMetadata;
+  }
 
-    export interface MemberListResponse {
-        ok: boolean;
-        error?: string;
-        members?: string[];
-        response_metadata: ResponseMetadata;
-    }
+  export interface Message {
+    type: string;
+    user: string;
+    text: string;
+    ts: string;
+  }
 
-    export interface UserListResponse {
-        ok: boolean;
-        error?: string;
-        members?: Member[];
-        response_metadata: ResponseMetadata;
-    }
+  export interface MessageListResponse {
+    ok: boolean;
+    error?: string;
+    messages?: Message[];
+    has_more?: boolean;
+    pin_count?: number;
+    response_metadata: ResponseMetadata;
+  }
 
-    export interface Message {
-        type: string;
-        user: string;
-        text: string;
-        ts: string;
-    }
-
-    export interface MessageListResponse {
-        ok: boolean;
-        error?: string;
-        messages?: Message[];
-        has_more?: boolean;
-        pin_count?: number;
-        response_metadata: ResponseMetadata;
-    }
-
-    export interface UserPresenceResponse {
-        ok: boolean;
-        error?: string;
-        presence?: string;
-    }
-
+  export interface UserPresenceResponse {
+    ok: boolean;
+    error?: string;
+    presence?: string;
+  }
 }

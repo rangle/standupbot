@@ -17,14 +17,16 @@ You'll have to first create a Slack App. I don't remember if this is stricly req
 2. Create a new app, select 'Rangle' (or something else) as your dev workspace. This will effectively be your 'forever' workspace because we're not distributing this as a public app.
 3. You adjust the icon, name of the bot and nothing else is required.
 4. You'll need to get an OAuth Token from the "OAuth & Permissions" tab. Copy the bot token, you'll need it in your env file.
-5. In OAuth, under "Scopes" you'll need 
-  * `channels:history` (this is needed to find channels by name instead of ID)
-  * `channels:read`
-  * `chat:write`
-  * `chat:write.customize` (this is to alter the name and display picture from the app default, if you care)
-  * `groups:history` (this and the next one is required if your standup channel is private)
-  * `groups:read`
-  * `users:read` (this is needed to see whether a user is online)
+5. In OAuth, under "Scopes" you'll need
+
+- `channels:history` (this is needed to find channels by name instead of ID)
+- `channels:read`
+- `chat:write`
+- `chat:write.customize` (this is to alter the name and display picture from the app default, if you care)
+- `groups:history` (this and the next one is required if your standup channel is private)
+- `groups:read`
+- `users:read` (this is needed to see whether a user is online)
+
 5. Create a new channel in Slack for your standups. You'll typically want to use this channel only for standup.
 6. You'll need to make sure the app is installed to the workspace after adding those perms - there should be a green button for this next to the Bot OAuth Token.
 
@@ -42,12 +44,13 @@ Per the serverless framework, you can have a `dev.env.json` and `prod.env.json` 
 
 ```json
 {
-    "SLACK_STANDUP_CHANNEL": "my_test_channel",
-    "SLACK_STANDUP_CHANNEL_PROD": "myproject_standup",
-    "SLACK_KEY": "xoxb-1234-12341234",
-    "REMOVE_FROM_STANDUP": ""
+  "SLACK_STANDUP_CHANNEL": "my_test_channel",
+  "SLACK_STANDUP_CHANNEL_PROD": "myproject_standup",
+  "SLACK_KEY": "xoxb-1234-12341234",
+  "REMOVE_FROM_STANDUP": ""
 }
 ```
+
 The first channel is used by the `prompt-standup` and `check-standup` functions.
 The "PROD" channel is used by the `list-standup-users` method (more on this later). It should be identical to the main channel in your `prod` env config.
 The Slack key is the OAuth Bot token you copied earlier.
@@ -66,5 +69,5 @@ Note also that the [AWS cron syntax](https://docs.aws.amazon.com/AmazonCloudWatc
 
 ## Users to ignore
 
-By default, the standup check will look to poke all members of the channel. You can configure to ignore certain channel members by adding their comma-separate user-ids to `REMOVE_FROM_STANDUP` in `prod.env.json` (or `dev.env.json`): 
+By default, the standup check will look to poke all members of the channel. You can configure to ignore certain channel members by adding their comma-separate user-ids to `REMOVE_FROM_STANDUP` in `prod.env.json` (or `dev.env.json`):
 e.g. `"REMOVE_FROM_STANDUP": "UEJAC6W8T, BEJ589T8K"`).
