@@ -39,6 +39,7 @@ functions:
     environment:
       SLACK_KEY: ${self:custom.env.SLACK_KEY}
       SLACK_STANDUP_CHANNEL: ${self:custom.env.SLACK_STANDUP_CHANNEL}
+      REMOVE_FROM_STANDUP: ${self:custom.env.REMOVE_FROM_STANDUP}
   prompt-standup:
     handler: handle-standupbot.promptStandup
     events:
@@ -48,11 +49,13 @@ functions:
     environment:
       SLACK_KEY: ${self:custom.env.SLACK_KEY}
       SLACK_STANDUP_CHANNEL: ${self:custom.env.SLACK_STANDUP_CHANNEL}
+      REMOVE_FROM_STANDUP: ${self:custom.env.REMOVE_FROM_STANDUP}
   list-standup-users:
     handler: handle-standupbot.listStandupUsers
     environment:
       SLACK_KEY: ${self:custom.env.SLACK_KEY}
       SLACK_STANDUP_CHANNEL: ${self:custom.env.SLACK_STANDUP_CHANNEL_PROD}
+      REMOVE_FROM_STANDUP: ${self:custom.env.REMOVE_FROM_STANDUP}
   
 
 #0 20 * * * /usr/share/meowbot/dadjokes.pl

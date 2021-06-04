@@ -7,7 +7,7 @@ const standupPrompt = "1. What did you accomplish since the last check-in?\n"
 + "2. What are you working on next?\n"
 + "3. Current Status: Blocked :no_entry_sign:, Need Assistance :hand:, On Track :white_check_mark:\n"
 
-export const promptStandup: APIGatewayProxyHandler = async (event, _context) => {
+export const promptStandup: APIGatewayProxyHandler = async (_, _context) => {
   try {
     let channelName = process.env.SLACK_STANDUP_CHANNEL;
     console.log("standup check in: ", channelName);
@@ -20,7 +20,7 @@ export const promptStandup: APIGatewayProxyHandler = async (event, _context) => 
   }
 }
 
-export const checkStandup: APIGatewayProxyHandler = async (event, _context) => {
+export const checkStandup: APIGatewayProxyHandler = async (_, _context) => {
   try {
     await doStandupCheck(process.env.SLACK_STANDUP_CHANNEL);
     return { statusCode: 200, body: '' };
@@ -30,7 +30,7 @@ export const checkStandup: APIGatewayProxyHandler = async (event, _context) => {
   }
 }
 
-export const listStandupUsers: APIGatewayProxyHandler = async (event, _context) => {
+export const listStandupUsers: APIGatewayProxyHandler = async (_, _context) => {
   try {
     let channelName = process.env.SLACK_STANDUP_CHANNEL;
     console.log("list users in: ", channelName);
@@ -69,6 +69,12 @@ const doStandupCheck = async (channelName: string): Promise<void> => {
     usersToPoke.delete(p);
   }
 
+
+  const ignoredUsers = (process.env.REMOVE_FROM_STANDUP || "").split(',').map(u => u.trim());
+  console.debug('Ignored Users', ignoredUsers);
+  ignoredUsers.forEach(ignoredUser => {
+    usersToPoke.delete(ignoredUser)
+  });
   
   // remove inactive users
   let it = usersToPoke.keys();
@@ -78,7 +84,9 @@ const doStandupCheck = async (channelName: string): Promise<void> => {
     try {
       let stat = await getUserStatus(uid);
       console.debug("status check", uid, stat);
-      if (stat !== "active") { usersToPoke.delete(uid); }
+      if (stat !== "active") {
+        usersToPoke.delete(uid);
+      }
     } catch (err) {
       // For e.g. other workspaces
       console.debug('could not get info for user', uid, err)
@@ -89,7 +97,9 @@ const doStandupCheck = async (channelName: string): Promise<void> => {
   let lePoke = [];
   if (usersToPoke.size > 0) {
     console.log("Poking", usersToPoke);
-    usersToPoke.forEach((val,key) => lePoke.push('<@'+key+'>'));
+    usersToPoke.forEach((_, key) => {
+      lePoke.push('<@' + key + '>');
+    });
     console.log("Poking ", lePoke);
     await postMessage(channel, "Please provide status " + lePoke.join(', '));
   } else {

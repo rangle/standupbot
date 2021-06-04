@@ -44,7 +44,8 @@ Per the serverless framework, you can have a `dev.env.json` and `prod.env.json` 
 {
     "SLACK_STANDUP_CHANNEL": "my_test_channel",
     "SLACK_STANDUP_CHANNEL_PROD": "myproject_standup",
-    "SLACK_KEY": "xoxb-1234-12341234"
+    "SLACK_KEY": "xoxb-1234-12341234",
+    "REMOVE_FROM_STANDUP": ""
 }
 ```
 The first channel is used by the `prompt-standup` and `check-standup` functions.
@@ -65,4 +66,5 @@ Note also that the [AWS cron syntax](https://docs.aws.amazon.com/AmazonCloudWatc
 
 ## Users to ignore
 
-By default, the standup check will look to poke all members of the channel. One last "configurable" thing is the ability to ignore certain channel members - it's actually hardcoded for now because it was a late addition I didn't get to cleaning up. You'll see this in the `doStandupCheck` function in `handle-standupbot.ts`, specifically removing UIDs from an array. To find those IDs in your channel, use `sls invoke local -f list-standup-users` locally, which references the `SLACK_STANDUP_CHANNEL_PROD`. It's a bit hacky, but I wanted to avoid forcing `--stage prod` to scan the right channel. Then you can look for the IDs you want to exclude and update the script, then redeploy.
+By default, the standup check will look to poke all members of the channel. You can configure to ignore certain channel members by adding their comma-separate user-ids to `REMOVE_FROM_STANDUP` in `prod.env.json` (or `dev.env.json`): 
+e.g. `"REMOVE_FROM_STANDUP": "UEJAC6W8T, BEJ589T8K"`).
